@@ -23,20 +23,20 @@ import java.util.*;
  */
 public class HttpClientUtils {
 
-    // 编码格式。发送编码格式统一用UTF-8
+    //编码格式统一用UTF-8
     private static final String ENCODING = "UTF-8";
 
-    // 设置连接超时时间，单位毫秒。
+    // 设置连接超时时间
     private static final int CONNECT_TIMEOUT = 6000;
 
-    // 请求获取数据的超时时间(即响应时间)，单位毫秒。
+    // 请求获取数据的超时时间(即响应时间)
     private static final int SOCKET_TIMEOUT = 6000;
 
     /**
      * 发送get请求；不带请求头和请求参数
      *
      * @param url 请求地址
-     * @return
+     * @return HttpClientResult
      * @throws Exception
      */
     public static HttpClientResult doGet(String url) throws Exception {
@@ -48,13 +48,12 @@ public class HttpClientUtils {
      *
      * @param url    请求地址
      * @param params 请求参数集合
-     * @return
+     * @return HttpClientResult
      * @throws Exception
      */
     public static HttpClientResult doGet(String url, Map<String, String> params) throws Exception {
         return doGet(url, null, params);
     }
-
 
     /**
      * 发送get请求；带请求头和请求参数
@@ -78,9 +77,7 @@ public class HttpClientUtils {
         }
 
         HttpGet httpGet = new HttpGet(uriBuilder.build());
-        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setSocketTimeout(SOCKET_TIMEOUT).build();
-
-        httpGet.setConfig(requestConfig);
+        config(httpGet);
         packageHeader(params, httpGet);
         CloseableHttpResponse httpResponse = null;
 
@@ -127,9 +124,7 @@ public class HttpClientUtils {
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(url);
-
-        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setSocketTimeout(SOCKET_TIMEOUT).build();
-        httpPost.setConfig(requestConfig);
+        config(httpPost);
         packageHeader(headers, httpPost);
         packageParam(params, httpPost);
         CloseableHttpResponse httpResponse = null;
@@ -149,7 +144,7 @@ public class HttpClientUtils {
      * @throws Exception
      */
     public static HttpClientResult doPut(String url) throws Exception {
-        return doPut(url);
+        return doPut(url, null);
     }
 
     /**
@@ -163,11 +158,8 @@ public class HttpClientUtils {
     public static HttpClientResult doPut(String url, Map<String, String> params) throws Exception {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPut httpPut = new HttpPut(url);
-        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setSocketTimeout(SOCKET_TIMEOUT).build();
-        httpPut.setConfig(requestConfig);
-
+        config(httpPut);
         packageParam(params, httpPut);
-
         CloseableHttpResponse httpResponse = null;
 
         try {
@@ -208,11 +200,21 @@ public class HttpClientUtils {
      */
     public static HttpClientResult doDelete(String url, Map<String, String> params) throws Exception {
         if (params == null) {
-            params = new HashMap<>();
+            params = new HashMap<String, String>();
         }
 
         params.put("_method", "delete");
         return doPost(url, params);
+    }
+
+    /**
+     * Description: 封装配置信息
+     *
+     * @param httpRequestBase
+     */
+    private static void config(HttpRequestBase httpRequestBase) {
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setSocketTimeout(SOCKET_TIMEOUT).build();
+        httpRequestBase.setConfig(requestConfig);
     }
 
     /**
