@@ -14,11 +14,7 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Description httpClient工具封装类
@@ -143,6 +139,80 @@ public class HttpClientUtils {
         } finally {
             release(httpResponse, httpClient);
         }
+    }
+
+    /**
+     * 发送put请求；不带请求参数
+     *
+     * @param url 请求地址
+     * @return HttpClientResult
+     * @throws Exception
+     */
+    public static HttpClientResult doPut(String url) throws Exception {
+        return doPut(url);
+    }
+
+    /**
+     * 发送put请求；带请求参数
+     *
+     * @param url    请求地址
+     * @param params 参数集合
+     * @return HttpClientResult
+     * @throws Exception
+     */
+    public static HttpClientResult doPut(String url, Map<String, String> params) throws Exception {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpPut httpPut = new HttpPut(url);
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setSocketTimeout(SOCKET_TIMEOUT).build();
+        httpPut.setConfig(requestConfig);
+
+        packageParam(params, httpPut);
+
+        CloseableHttpResponse httpResponse = null;
+
+        try {
+            return getHttpClientResult(httpResponse, httpClient, httpPut);
+        } finally {
+            release(httpResponse, httpClient);
+        }
+    }
+
+    /**
+     * 发送delete请求；不带请求参数
+     *
+     * @param url 请求地址
+     * @return HttpClientResult
+     * @throws Exception
+     */
+    public static HttpClientResult doDelete(String url) throws Exception {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpDelete httpDelete = new HttpDelete(url);
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setSocketTimeout(SOCKET_TIMEOUT).build();
+        httpDelete.setConfig(requestConfig);
+
+        CloseableHttpResponse httpResponse = null;
+        try {
+            return getHttpClientResult(httpResponse, httpClient, httpDelete);
+        } finally {
+            release(httpResponse, httpClient);
+        }
+    }
+
+    /**
+     * 发送delete请求；带请求参数
+     *
+     * @param url    请求地址
+     * @param params 参数集合
+     * @return HttpClientResult
+     * @throws Exception
+     */
+    public static HttpClientResult doDelete(String url, Map<String, String> params) throws Exception {
+        if (params == null) {
+            params = new HashMap<>();
+        }
+
+        params.put("_method", "delete");
+        return doPost(url, params);
     }
 
     /**
