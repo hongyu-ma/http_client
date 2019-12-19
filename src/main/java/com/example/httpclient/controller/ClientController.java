@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * @Description
+ * @Description client端
  *
  * @Author mahongyu
  * @Date 2019-12-18 14:48
@@ -40,12 +40,13 @@ public class ClientController {
         System.out.println("Accept-Language = " + acceptLanguage);
         System.out.println("Accept-Encoding = " + acceptEncoding);
         System.out.println("User-Agent = " + userAgent);
-
+        log.info("client接收post请求");
         return "post无参请求成功";
     }
 
     @PostMapping("/postWithParam")
     public String postWithParam(@RequestParam String code, @RequestParam String message) {
+        log.info("client接收post含参数请求");
         return "post带参请求成功,参数code: " + code + ",参数message: " + message;
     }
 

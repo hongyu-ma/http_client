@@ -5,10 +5,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -17,6 +14,7 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -92,6 +90,56 @@ public class HttpClientUtils {
 
         try {
             return getHttpClientResult(httpResponse, httpClient, httpGet);
+        } finally {
+            release(httpResponse, httpClient);
+        }
+    }
+
+    /**
+     * 发送post请求；不带请求头和请求参数
+     *
+     * @param url 请求地址
+     * @return HttpClientResult
+     * @throws Exception
+     */
+    public static HttpClientResult doPost(String url) throws Exception {
+        return doPost(url, null, null);
+    }
+
+    /**
+     * 发送post请求；带请求参数
+     *
+     * @param url    请求地址
+     * @param params 参数集合
+     * @return HttpClientResult
+     * @throws Exception
+     */
+    public static HttpClientResult doPost(String url, Map<String, String> params) throws Exception {
+        return doPost(url, null, params);
+    }
+
+    /**
+     * 发送post请求；带请求头和请求参数
+     *
+     * @param url     请求地址
+     * @param headers 请求头集合
+     * @param params  请求参数集合
+     * @return HttpClientResult
+     * @throws Exception
+     */
+    public static HttpClientResult doPost(String url, Map<String, String> headers, Map<String, String> params) throws Exception {
+
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(url);
+
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIMEOUT).setSocketTimeout(SOCKET_TIMEOUT).build();
+        httpPost.setConfig(requestConfig);
+        packageHeader(headers, httpPost);
+        packageParam(params, httpPost);
+        CloseableHttpResponse httpResponse = null;
+
+        try {
+            return getHttpClientResult(httpResponse, httpClient, httpPost);
         } finally {
             release(httpResponse, httpClient);
         }
